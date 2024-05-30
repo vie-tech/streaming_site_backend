@@ -14,4 +14,9 @@ router.get(
     guestController.getAllGuestLiveStreams
 )
 
+router.get(
+    '/get_guest_token',
+    guestController.getJwtTokenForGuest
+)
+
 module.exports = {router}
