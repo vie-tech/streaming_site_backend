@@ -31,13 +31,12 @@ const getAllGuestLiveStreams = (req, res) => {
     });
 };
 
-const getJwtTokenForGuest = (req, res) => {
+const getJwtTokenForGuest = async (req, res) => {
   const { userId} = req.query;
   if (!userId) return responseHandler.error(res);
 
   const payload = {
     user_id: userId,
-
   };
   const options = {
     expiresIn: "1h",
@@ -46,6 +45,8 @@ const getJwtTokenForGuest = (req, res) => {
 
   const token = jwt.sign(payload, process.env.JWT_PASSKEY, options);
   if (!token) return responseHandler.error(res);
+ const user = await Guest.findOneAndUpdate({guestId: userId}, {isLive: true}, {new: true})
+  if(!user) return responseHandler.error(res)
   responseHandler.ok(res, { token });
 };
 
@@ -57,8 +58,17 @@ const createRoomIdForGuestHost = async (req, res) => {
     
 };
 
+const endGuestHostCall = async (req, res)=>{
+   const {guestId} = req.query
+   const user = await Guest.findOneAndUpdate({guestId: guestId}, {isLive: false}, {new: true})
+   if(!user) return responseHandler.error(res)
+
+    responseHandler.ok(res, {message: 'done'})
+}
+
 module.exports = {
   getTemporaryGuestId,
   getAllGuestLiveStreams,
   getJwtTokenForGuest,
+  endGuestHostCall
 };

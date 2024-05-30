@@ -19,4 +19,9 @@ router.get(
     guestController.getJwtTokenForGuest
 )
 
+router.put(
+    '/end_guest_call',
+    guestController.endGuestHostCall
+)
+
 module.exports = {router}
