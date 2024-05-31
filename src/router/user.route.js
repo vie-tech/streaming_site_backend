@@ -37,7 +37,7 @@ router.post(
 
 router.post(
     '/login',
-    body('username')
+    body('email')
     .exists()
     .withMessage('Username field cannot be empty'),
     body('password')

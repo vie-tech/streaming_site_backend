@@ -12,6 +12,7 @@ const userSignup = async (req, res) => {
     const { username, email, password, age } = req.body;
     const userAlreadyExists = await User.findOne({ email });
     if (userAlreadyExists) return responseHandler.badrequest(res, "User already exists");
+    
 
     const user =  new User();
     const hostId = uuidV4()
@@ -20,7 +21,8 @@ const userSignup = async (req, res) => {
     user.email = email
     user.age = age
     user.hostId = hostId
-    user.setPassword(password);
+    const hashedPassword = await user.setPassword(password);
+    user.password =  hashedPassword;
     await user.save();
 
 
@@ -53,10 +55,14 @@ const userSignup = async (req, res) => {
 
 const userLogin = async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
-    if (!user) return responseHandler.badrequest(res, "Invalid username or password");
-    if (!user.validPassword(password)) return responseHandler.badrequest(res, "Invalid username or password");
+    const { email, password } = req.body
+    console.log(email, password)
+    const user = await User.findOne({ email });
+    if (!user) return responseHandler.badrequest(res, "Invalid email or password");
+    const validPassword = await user.validPassword(password)
+    console.log(validPassword)
+    if (!validPassword) return responseHandler.badrequest(res, "Invalid email or password");
+    console.log('didnt reach here')
     const token = jwt.sign(
       { id: user._id, permissionToLiveStream: user.permissionToLiveStream},
       process.env.JWT_PASSKEY,
@@ -64,11 +70,12 @@ const userLogin = async (req, res) => {
     )
     if (!token) return responseHandler.invalidToken(res);
     responseHandler.created(res, {
-      message: `Welcome ${user.username}`,
+      message: `Welcome back ${user.username}`,
     }, token);
     
-  } catch {
+  } catch (err) {
     responseHandler.error(res);
+    console.log(err)
   }
 };
 
