@@ -62,7 +62,7 @@ const userLogin = async (req, res) => {
     const validPassword = await user.validPassword(password)
     console.log(validPassword)
     if (!validPassword) return responseHandler.badrequest(res, "Invalid email or password");
-    console.log('didnt reach here')
+    
     const token = jwt.sign(
       { id: user._id, permissionToLiveStream: user.permissionToLiveStream},
       process.env.JWT_PASSKEY,
@@ -71,6 +71,8 @@ const userLogin = async (req, res) => {
     if (!token) return responseHandler.invalidToken(res);
     responseHandler.created(res, {
       message: `Welcome back ${user.username}`,
+      user: user.username,
+      user_host_id: user.hostId
     }, token);
     
   } catch (err) {
@@ -79,10 +81,34 @@ const userLogin = async (req, res) => {
   }
 };
 
+const getJwtTokenForUser = async (req, res) => {
+  const userFromMiddleware = req.user
+  if(!userFromMiddleware) return responseHandler.error(res)
+    
+  const { userId} = req.query;
+  if (!userId) return responseHandler.error(res);
+
+  const payload = {
+    user_id: userId,
+  };
+  const options = {
+    expiresIn: "1h",
+    issuer: "my_app_url", //REPLACE THIS WITH THE APP URL
+  };
+
+  const token = jwt.sign(payload, process.env.JWT_PASSKEY, options);
+  if (!token) return responseHandler.error(res);
+ const user = await Channel.findOneAndUpdate({owner: userFromMiddleware.id}, {isLive: true}, {new: true})
+  if(!user) return responseHandler.error(res)
+    console.log(token)
+  responseHandler.ok(res, { token, channelName: user.channelName });
+};
+
 
 
 
 module.exports = {
   userSignup,
   userLogin,
+  getJwtTokenForUser
 }
