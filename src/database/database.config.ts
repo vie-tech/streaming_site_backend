@@ -3,12 +3,12 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 const port = Number(process.env.POSTGRES_PORT) 
-
+const password = process.env.POSTGRES_PASSWORD || "DEFALULT"
 const pool = new Pool({
-    user: process.env.POSTGRES_USER,
-    host: process.env.POSTGRES_SERVER,
-    database: process.env.POSTGRES_DB,
-    password: process.env.POSTGRES_PASSWORD,
+    user: "postgres",
+    host: 'localhost',
+    database: "anon_stream_db",
+    password: "genders1703",
     port: port || undefined,
 })
 

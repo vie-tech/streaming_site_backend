@@ -2,7 +2,7 @@ import { responseHandler } from "../handlers/response.handler"
 import { v4 as uuid } from "uuid";
 import jwt from "jsonwebtoken";
 import pool from '../database/database.config';
-import { CREATE_CHANNELS_FOR_GUESTS, INSERT_GUEST_QUERY, GET_ALL_lIVE_GUEST_CHANNEL, UPDATE_GUEST_CHANNEL_STATUS } from '../database/query.js'
+import { CREATE_CHANNELS_FOR_GUESTS, INSERT_GUEST_QUERY, GET_ALL_LIVE_GUEST_CHANNEL, UPDATE_GUEST_CHANNEL_STATUS, INSERT_GUEST_CHANNEL_QUERY } from '../database/query.js'
 import { Request, Response } from 'express';
 import { PoolClient } from "pg";
 import { createGuestChannels, createGuestTable } from '../database/table.management';
@@ -17,25 +17,37 @@ const getTemporaryGuestId = async (req: Request, res: Response) => {
   console.log("Guest function running");
   const uuidValue = uuid();
   const temporaryGuestId = `guest_user_${uuidValue}`
-  if (!temporaryGuestId) return responseHandler.error(res, 'Could not generate temporary guest id');
+  if (!temporaryGuestId){
+    throw new Error('Could not generate temporary guestId')
+  }
   let client: PoolClient | undefined
   try {
+    
     const create_guest_table = await createGuestTable()
-    const create_guest_channel_table = await createGuestChannels()
-    if (!create_guest_table || !create_guest_channel_table) {
+  
+    if (!create_guest_table) {
       throw new Error('Could not create table')
+    }
+
+    const create_guest_channel_table = await createGuestChannels()
+    if(!create_guest_channel_table){
+       throw new Error('Could not create table for guest channel')
     }
     client = await pool.connect()
     await client.query('BEGIN')
+    console.log('user creation started')
     const guest = await client.query(INSERT_GUEST_QUERY, [temporaryGuestId])
-    if (guest.rowCount === 0) {
-      throw new Error('Could not create guest account please sign in instead')
-    }
-    const guest_channel = await client.query(CREATE_CHANNELS_FOR_GUESTS, [guest.rows[0].guest_name])
-    if (guest_channel.rowCount === 0) {
+    console.log(guest.rowCount)
+    
+    const guest_channel = await client.query(INSERT_GUEST_CHANNEL_QUERY, [guest.rows[0].guest_name])
+    console.log(guest_channel.rowCount)
+    console.log(guest.rows[0].guest_name)
+    console.log(guest_channel)
+    if (guest_channel.rowCount == 0) {
       throw new Error('Could not create guest channel please sign in instead')
     }
 
+     console.log( guest_channel.rows[0].channel_name)
     responseHandler.ok(res, {
       guest_channel: guest_channel.rows[0].channel_name,
       guest_id: temporaryGuestId,
@@ -44,6 +56,7 @@ const getTemporaryGuestId = async (req: Request, res: Response) => {
   } catch (err) {
     await client?.query('ROLLBACK')
     if (err instanceof Error) {
+      console.log(err)
       responseHandler.error(res, err.message)
     }
   } finally {
@@ -63,7 +76,7 @@ const getAllGuestLiveStreams = async (req: Request, res: Response) => {
   try {
     client = await pool.connect()
     await client.query('BEGIN')
-    const channels = await client.query(GET_ALL_lIVE_GUEST_CHANNEL)
+    const channels = await client.query(GET_ALL_LIVE_GUEST_CHANNEL)
     await client.query('COMMIT')
     responseHandler.ok(res, {
       channels: channels.rows,

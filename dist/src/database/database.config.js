@@ -7,11 +7,12 @@ const pg_1 = require("pg");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const port = Number(process.env.POSTGRES_PORT);
+const password = process.env.POSTGRES_PASSWORD || "DEFALULT";
 const pool = new pg_1.Pool({
-    user: process.env.POSTGRES_USER,
-    host: process.env.POSTGRES_SERVER,
-    database: process.env.POSTGRES_DB,
-    password: process.env.POSTGRES_PASSWORD,
+    user: "postgres",
+    host: 'localhost',
+    database: "anon_stream_db",
+    password: "genders1703",
     port: port || undefined,
 });
 exports.default = pool;

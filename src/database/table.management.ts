@@ -1,6 +1,6 @@
 import { CREATE_USERS_TABLE, CREATE_CHANNELS_FOR_USERS, CREATE_TABLE_GUESTS, CREATE_CHANNELS_FOR_GUESTS } from "./query"
 import pool from "./database.config"
-import { Pool, PoolClient } from "pg"
+import { PoolClient } from "pg"
 
 
 export const createUsersTable = async () => {

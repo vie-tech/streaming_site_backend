@@ -26,25 +26,32 @@ const getTemporaryGuestId = (req, res) => __awaiter(void 0, void 0, void 0, func
     console.log("Guest function running");
     const uuidValue = (0, uuid_1.v4)();
     const temporaryGuestId = `guest_user_${uuidValue}`;
-    if (!temporaryGuestId)
-        return response_handler_1.responseHandler.error(res, 'Could not generate temporary guest id');
+    if (!temporaryGuestId) {
+        throw new Error('Could not generate temporary guestId');
+    }
     let client;
     try {
         const create_guest_table = yield (0, table_management_1.createGuestTable)();
-        const create_guest_channel_table = yield (0, table_management_1.createGuestChannels)();
-        if (!create_guest_table || !create_guest_channel_table) {
+        if (!create_guest_table) {
             throw new Error('Could not create table');
+        }
+        const create_guest_channel_table = yield (0, table_management_1.createGuestChannels)();
+        if (!create_guest_channel_table) {
+            throw new Error('Could not create table for guest channel');
         }
         client = yield database_config_1.default.connect();
         yield client.query('BEGIN');
+        console.log('user creation started');
         const guest = yield client.query(query_js_1.INSERT_GUEST_QUERY, [temporaryGuestId]);
-        if (guest.rowCount === 0) {
-            throw new Error('Could not create guest account please sign in instead');
-        }
-        const guest_channel = yield client.query(query_js_1.CREATE_CHANNELS_FOR_GUESTS, [guest.rows[0].guest_name]);
-        if (guest_channel.rowCount === 0) {
+        console.log(guest.rowCount);
+        const guest_channel = yield client.query(query_js_1.INSERT_GUEST_CHANNEL_QUERY, [guest.rows[0].guest_name]);
+        console.log(guest_channel.rowCount);
+        console.log(guest.rows[0].guest_name);
+        console.log(guest_channel);
+        if (guest_channel.rowCount == 0) {
             throw new Error('Could not create guest channel please sign in instead');
         }
+        console.log(guest_channel.rows[0].channel_name);
         response_handler_1.responseHandler.ok(res, {
             guest_channel: guest_channel.rows[0].channel_name,
             guest_id: temporaryGuestId,
@@ -54,6 +61,7 @@ const getTemporaryGuestId = (req, res) => __awaiter(void 0, void 0, void 0, func
     catch (err) {
         yield (client === null || client === void 0 ? void 0 : client.query('ROLLBACK'));
         if (err instanceof Error) {
+            console.log(err);
             response_handler_1.responseHandler.error(res, err.message);
         }
     }
@@ -70,7 +78,7 @@ const getAllGuestLiveStreams = (req, res) => __awaiter(void 0, void 0, void 0, f
     try {
         client = yield database_config_1.default.connect();
         yield client.query('BEGIN');
-        const channels = yield client.query(query_js_1.GET_ALL_lIVE_GUEST_CHANNEL);
+        const channels = yield client.query(query_js_1.GET_ALL_LIVE_GUEST_CHANNEL);
         yield client.query('COMMIT');
         response_handler_1.responseHandler.ok(res, {
             channels: channels.rows,
