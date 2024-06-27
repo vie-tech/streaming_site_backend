@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UPDATE_GUEST_CHANNEL_STATUS = exports.GET_ALL_LIVE_GUEST_CHANNEL = exports.INSERT_GUEST_CHANNEL_QUERY = exports.INSERT_GUEST_QUERY = exports.UPDATE_CHANNEL_STATUS = exports.SEARCH_LOGIN_QUERY = exports.INSERT_QUERY_CREATE_CHANNEL = exports.INSERT_QUERY_SIGNUP = exports.SEARCH_QUERY_SIGNUP = exports.CREATE_CHANNELS_FOR_GUESTS = exports.CREATE_TABLE_GUESTS = exports.CREATE_CHANNELS_FOR_USERS = exports.CREATE_USERS_TABLE = void 0;
+exports.DELETE_GUEST = exports.UPDATE_GUEST_CHANNEL_STATUS = exports.GET_ALL_LIVE_GUEST_CHANNEL = exports.INSERT_GUEST_CHANNEL_QUERY = exports.INSERT_GUEST_QUERY = exports.UPDATE_CHANNEL_STATUS = exports.SEARCH_LOGIN_QUERY = exports.INSERT_QUERY_CREATE_CHANNEL = exports.INSERT_QUERY_SIGNUP = exports.SEARCH_QUERY_SIGNUP = exports.CREATE_CHANNELS_FOR_GUESTS = exports.CREATE_TABLE_GUESTS = exports.CREATE_CHANNELS_FOR_USERS = exports.CREATE_USERS_TABLE = void 0;
 exports.CREATE_USERS_TABLE = `CREATE TABLE IF NOT EXISTS accounts (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
@@ -36,3 +36,4 @@ exports.INSERT_GUEST_QUERY = 'INSERT INTO guests (guest_name) VALUES ($1) RETURN
 exports.INSERT_GUEST_CHANNEL_QUERY = 'INSERT INTO channels_for_guests (owner_id) VALUES($1) RETURNING channel_name';
 exports.GET_ALL_LIVE_GUEST_CHANNEL = 'SELECT * FROM channels_for_guests WHERE isLive = true';
 exports.UPDATE_GUEST_CHANNEL_STATUS = 'UPDATE channels_for_guests SET isLive =$1 WHERE owner_id =$2';
+exports.DELETE_GUEST = `DELETE FROM channels_for_guests WHERE owner_id = $1`;

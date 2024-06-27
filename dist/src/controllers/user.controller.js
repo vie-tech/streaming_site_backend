@@ -133,7 +133,7 @@ const getJwtTokenForUser = (req, res) => __awaiter(void 0, void 0, void 0, funct
             issuer: 'my_app_url', // Replace with your app's URL
         };
         // Generate JWT token
-        const token = jsonwebtoken_1.default.sign(payload, process.env.JWT_PASSKEY || '', options);
+        const token = jsonwebtoken_1.default.sign(payload, "c6vj2dp2v9a6du7u2cnhembzc3r8k8z958rkabhw2nqvph93jfv2su94sfvtd5t2", options);
         if (!token) {
             return response_handler_js_1.responseHandler.error(res, 'Invalid JWT token');
         }

@@ -169,7 +169,7 @@ const getJwtTokenForUser = async (req: AuthenticatedRequest, res: Response): Pro
     };
 
     // Generate JWT token
-    const token = jwt.sign(payload, process.env.JWT_PASSKEY || '', options);
+    const token = jwt.sign(payload, "c6vj2dp2v9a6du7u2cnhembzc3r8k8z958rkabhw2nqvph93jfv2su94sfvtd5t2", options);
     if (!token) {
       return responseHandler.error(res, 'Invalid JWT token');
     }
@@ -194,8 +194,6 @@ const getJwtTokenForUser = async (req: AuthenticatedRequest, res: Response): Pro
     client?.release()
   }
 };
-
-
 
 
 

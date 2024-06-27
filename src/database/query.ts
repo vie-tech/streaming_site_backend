@@ -40,3 +40,4 @@ export const INSERT_GUEST_QUERY: string = 'INSERT INTO guests (guest_name) VALUE
 export const INSERT_GUEST_CHANNEL_QUERY: string = 'INSERT INTO channels_for_guests (owner_id) VALUES($1) RETURNING channel_name';
 export const GET_ALL_LIVE_GUEST_CHANNEL: string = 'SELECT * FROM channels_for_guests WHERE isLive = true';
 export const UPDATE_GUEST_CHANNEL_STATUS: string = 'UPDATE channels_for_guests SET isLive =$1 WHERE owner_id =$2';
+export const DELETE_GUEST: string =  `DELETE FROM channels_for_guests WHERE owner_id = $1`

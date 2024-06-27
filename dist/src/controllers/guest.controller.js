@@ -21,7 +21,7 @@ const query_js_1 = require("../database/query.js");
 const table_management_1 = require("../database/table.management");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const jwtPasskey = process.env.JWT_PASSKEY || "";
+const jwtPasskey = process.env.JWT_PASSKEY || "default";
 const getTemporaryGuestId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Guest function running");
     const uuidValue = (0, uuid_1.v4)();
@@ -41,17 +41,12 @@ const getTemporaryGuestId = (req, res) => __awaiter(void 0, void 0, void 0, func
         }
         client = yield database_config_1.default.connect();
         yield client.query('BEGIN');
-        console.log('user creation started');
         const guest = yield client.query(query_js_1.INSERT_GUEST_QUERY, [temporaryGuestId]);
-        console.log(guest.rowCount);
         const guest_channel = yield client.query(query_js_1.INSERT_GUEST_CHANNEL_QUERY, [guest.rows[0].guest_name]);
         console.log(guest_channel.rowCount);
-        console.log(guest.rows[0].guest_name);
-        console.log(guest_channel);
         if (guest_channel.rowCount == 0) {
             throw new Error('Could not create guest channel please sign in instead');
         }
-        console.log(guest_channel.rows[0].channel_name);
         response_handler_1.responseHandler.ok(res, {
             guest_channel: guest_channel.rows[0].channel_name,
             guest_id: temporaryGuestId,
@@ -59,6 +54,7 @@ const getTemporaryGuestId = (req, res) => __awaiter(void 0, void 0, void 0, func
         yield client.query('COMMIT');
     }
     catch (err) {
+        console.log(err);
         yield (client === null || client === void 0 ? void 0 : client.query('ROLLBACK'));
         if (err instanceof Error) {
             console.log(err);
@@ -110,7 +106,8 @@ const getJwtTokenForGuest = (req, res) => __awaiter(void 0, void 0, void 0, func
             expiresIn: "1h",
             issuer: "my_app_url", //REPLACE THIS WITH THE APP URL
         };
-        const token = jsonwebtoken_1.default.sign(payload, jwtPasskey, options);
+        const secretKey = "c6vj2dp2v9a6du7u2cnhembzc3r8k8z958rkabhw2nqvph93jfv2su94sfvtd5t2";
+        const token = jsonwebtoken_1.default.sign(payload, secretKey, options);
         if (!token) {
             throw new Error('Could not create JWT token');
         }
@@ -138,7 +135,7 @@ const endGuestHostCall = (req, res) => __awaiter(void 0, void 0, void 0, functio
     try {
         client = yield database_config_1.default.connect();
         yield client.query('BEGIN');
-        yield client.query(query_js_1.UPDATE_GUEST_CHANNEL_STATUS, [false, guestId]);
+        yield client.query(query_js_1.DELETE_GUEST, [false, guestId]);
         yield client.query('COMMIT');
         response_handler_1.responseHandler.ok(res, { message: 'done' });
     }
