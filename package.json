@@ -5,7 +5,7 @@
   "scripts": {
     "build": "rimraf dist &&  npx tsc",
     "prestart": "npm run build",
-    "start": "dist/server.js",
+    "start": "node dist/server.js",
     "predev": "npm run build",
     "dev": "concurrently \"tsc -w\" \"nodemon dist/server.js\""
   },
@@ -27,7 +27,6 @@
     "@types/uuid": "^10.0.0",
     "agora-access-token": "^2.0.4",
     "bcrypt": "^5.1.1",
-    "concurrently": "^8.2.2",
     "connect-redis": "^7.1.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -42,7 +41,6 @@
     "nodemon": "^3.1.0",
     "pg": "^8.12.0",
     "redis": "^4.6.13",
-    "rimraf": "^5.0.7",
     "socket.io": "^4.7.5",
     "socketio": "^1.0.0",
     "typescript": "^5.5.2",
